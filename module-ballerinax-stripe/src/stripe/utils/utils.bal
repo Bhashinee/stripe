@@ -64,3 +64,24 @@ function setJsonResError(error errorResponse) returns Error {
     return Error(message = "Error occurred while accessing the JSON payload of the response", 
                         cause = errorResponse);
 }
+
+function checkDeleteResponse(http:Response response) returns @tainted Error? {
+    json|error payload = response.getJsonPayload();
+    if (payload is error) {
+        return setJsonResError(payload);
+    } else {
+        var deleted = payload.deleted;
+        if (deleted is error) {
+            var message = payload.'error.message;
+            if (message is string) {
+                return setJsonResError(error(message));
+            } else {
+                return Error(message = "Error occurred while accessing the JSON payload of the response");
+            }           
+        } else {
+            if (deleted.toString() == "true") {
+                return ();
+            }
+        }
+    }     
+}

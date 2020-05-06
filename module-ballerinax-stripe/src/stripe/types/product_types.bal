@@ -15,18 +15,18 @@
 // under the License.
 
 public type Product record {
-	boolean active?;
-	string[] attributes?;
-	string caption?;
-	string[] deactivate_on?;
-	string description?;
-	string id?;
-	string[] images?;
+	boolean? active?;
+	string[]? attributes?;
+	string? caption?;
+	string[]? deactivate_on?;
+	string? description?;
+	string? id?;
+	string[]? images?;
 	string name;
-	PackageDimensions package_dimensions?;
-	boolean shippable?;
-	string 'type?;
-	string url?;
+	PackageDimensions? package_dimensions?;
+	boolean? shippable?;
+	string? 'type?;
+	string? url?;
 };
 
 // public type PackageDimensionsParams record {|

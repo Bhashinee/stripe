@@ -22,7 +22,7 @@ public type Products client object {
     private string path = "/v1/products";
 
     function __init(http:Client stripeClient) {
-        self.products = stripeClient;  
+     self.products = stripeClient;  
     }
 
    # Creates a product.
@@ -30,9 +30,9 @@ public type Products client object {
    # + product - Product configurations
    # + return - `Product` record, or else a `stripe:Error` in case of a failure
    public remote function create(Product product) returns @tainted Product|Error {
-       string queryString = createProductQuery(product);
-       http:Response response = check createPostRequest(self.products, queryString, self.path);
-       return mapToProductRecord(response);
+     string queryString = createProductQuery(product);
+     http:Response response = check createPostRequest(self.products, queryString, self.path);
+     return mapToProductRecord(response);
    }
  
    # Retrieves a product.
@@ -40,9 +40,9 @@ public type Products client object {
    # + productId - Product ID
    # + return - `Product` record, or else a `stripe:Error` in case of a failure
    public remote function retrieve(string productId) returns @tainted Product|Error {
-        string path = self.path + "/" + productId;
-        http:Response response = check createGetRequest(self.products, path);
-        return mapToProductRecord(response);
+     string path = self.path + "/" + productId;
+     http:Response response = check createGetRequest(self.products, path);
+     return mapToProductRecord(response);
    }
  
    
@@ -52,10 +52,10 @@ public type Products client object {
    # + product - Product configurations
    # + return - `Product` record, or else a `stripe:Error` in case of a failure
    public remote function update(string productId, Product product) returns @tainted Product|Error {
-        string path = self.path + "/" + productId;
-        string queryString = createProductQuery(product);
-        http:Response response = check createPostRequest(self.products, queryString, path);
-        return mapToProductRecord(response);
+     string path = self.path + "/" + productId;
+     string queryString = createProductQuery(product);
+     http:Response response = check createPostRequest(self.products, queryString, path);
+     return mapToProductRecord(response);
    }
  
    # Deletes a product.
@@ -63,14 +63,17 @@ public type Products client object {
    # + productId - Product ID
    # + return - `()` or else a `stripe:Error` in case of a failure
    public remote function delete(string productId) returns @tainted Error? {
-        string path = self.path + "/" + productId;
-        http:Response response = check createDeleteRequest(self.products, path);
-        return checkDeleteResponse(response);
+     string path = self.path + "/" + productId;
+     http:Response response = check createDeleteRequest(self.products, path);
+     return checkDeleteResponse(response);
    }
  
-//    # Lists all products.
-//    #
-//    # + return - An array of `Product` records, if no products are available the resulting record will be empty or else a `stripe:Error`
-//    public remote function list() returns Product[]|Error {}
+   # Lists all products.
+   #
+   # + return - An array of `Product` records, if no products are available the resulting record will be empty or else a `stripe:Error`
+   public remote function list() returns @tainted Product[]|Error {
+     http:Response response = check createGetRequest(self.products, self.path);
+     return mapToProducts(response);
+   }
 };
 

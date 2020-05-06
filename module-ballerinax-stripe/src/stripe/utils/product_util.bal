@@ -76,3 +76,22 @@ function mapToProductRecord(http:Response response) returns @tainted Product|Err
         }
     }        
 }
+
+function mapToProducts(http:Response response) returns @tainted Product[]|Error {
+    json|error payload = response.getJsonPayload();
+    if (payload is error) {
+        return setJsonResError(payload);
+    } else {
+        var products = payload.data;
+        if (products is error) {
+            return setJsonResError(products);
+        }
+        json productsJson = <json> products;
+        Product[]|error productList = Product[].constructFrom(productsJson);
+        if (productList is error) {
+            return Error(message = "Response cannot be converted to Customer record", cause = productList);
+        } else {
+            return productList;
+        }
+    }        
+}

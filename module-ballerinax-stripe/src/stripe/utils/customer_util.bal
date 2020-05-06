@@ -128,27 +128,12 @@ function mapToCustomers(http:Response response) returns @tainted Customer[]|Erro
             return setJsonResError(customers);
         }
         json customersJson = <json> customers;
-        Customer[]|error customer = Customer[].constructFrom(customersJson);
-        if (customer is error) {
-            return Error(message = "Response cannot be converted to Customer record", cause = customer);
+        Customer[]|error customerList = Customer[].constructFrom(customersJson);
+        if (customerList is error) {
+            return Error(message = "Response cannot be converted to Customer record", cause = customerList);
         } else {
-            return customer;
+            return customerList;
         }
     }        
 }
 
-function checkDeleteResponse(http:Response response) returns @tainted Error? {
-    json|error payload = response.getJsonPayload();
-    if (payload is error) {
-        return setJsonResError(payload);
-    } else {
-        var deleted = payload.deleted;
-        if (deleted is error) {
-            return setJsonResError(deleted);
-        } else {
-            if (deleted.toString() == "true") {
-                return ();
-            }
-        }
-    }     
-}

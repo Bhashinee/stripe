@@ -70,17 +70,17 @@ public function main() {
         width: 2.3
     },
 	shippable: true,
-	// 'type: "good",
+	'type: "good",
 	url: "https://medium.com/@bhashineen/ballerina-soap-connector-3974b6efaf2b"
 };
 
     Products products = stripeClient.products();
-    Error|Product prod = products->create(product);
-    if (prod is Product) {
-        io:println(prod["id"]);
-    } else {
-        io:println(prod);
-    }
+    // Error|Product prod = products->create(product);
+    // if (prod is Product) {
+    //     io:println(prod["id"]);
+    // } else {
+    //     io:println(prod);
+    // }
 
     // Error|Product prod = products->update("prod_HE9e5z2H1o2KZb", product);
     // if (prod is Product) {
@@ -89,8 +89,15 @@ public function main() {
     //     io:println(prod);
     // }
 
-    // Error? prod = products->delete("prod_HE9e5z2H1o2KZb");
+    // Error? prod = products->delete("prod_HECqxROfpa3FvB");
     // if (prod is Error) {
+    //     io:println(prod);
+    // }
+
+    // Error|Product[] prod = products->list();
+    // if (prod is Product[]) {
+    //     io:println(prod);
+    // } else {
     //     io:println(prod);
     // }
 
