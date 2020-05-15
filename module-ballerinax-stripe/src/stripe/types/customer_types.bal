@@ -14,24 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-
+# Contains information about a customer
+# 
+# + address - The customer’s address
+# + balance - An integer amount in cents that represents the customer’s current balance, 
+#             which affect the customer’s future invoices
+# + coupon - The coupon code. The customer will have a discount applied on all recurring charges
+# + description - An arbitrary string that can be attached to a customer object. 
+#                 It is displayed alongside the customer in the dashboard
+# + email - Customer’s email address
+# + invoice_prefix - The prefix for the customer used to generate unique invoice numbers. 
+#                    Must be 3–12 uppercase letters or numbers
+# + invoice_settings - Default invoice settings for a customer
+# + shipping - The customer’s shipping information
+# + name - The customer’s full name or business name
+# + next_invoice_sequence - The sequence to be used on the customer’s next invoice
+# + tax_exempt - The customer’s tax exemption. One of `none`, `exempt`, or `reverse`
+# + tax_id_data - The customer’s tax IDs
 public type Customer record {
     Address? address?;
     int balance?;
     string? coupon?;
     string description?;
-    string email?;
+    string? email?;
     string? invoice_prefix?;
     CustomerInvoiceCustomFieldParams? invoice_settings?;
-    CustomerShippingDetailsParams? shipping?;
-    string name?;
+    CustomerShippingDetails? shipping?;
+    string? name?;
     int? next_invoice_sequence?;
-    string[]? preferred_locales?;
     string tax_exempt?;
     CustomerTaxIdDataParams? tax_id_data?;
 };
 
+# Contains information about default invoice settings for a customer
+# 
+# + name - Custom field name
+# + value - Custom field value
+# + default_payment_method - ID of a payment method that’s attached to the customer, 
+#                           to be used as the customer’s default payment method for subscriptions and invoices
+# + footer - Default footer to be displayed on invoices for this customer
 public type CustomerInvoiceCustomFieldParams record {
 	string? name?;
 	string? value?;
@@ -39,14 +60,25 @@ public type CustomerInvoiceCustomFieldParams record {
     string? footer?;
 };
 
-public type CustomerShippingDetailsParams record {
+# The customer’s shipping information. Appears on invoices emailed to this customer.
+# 
+# + address - Customer shipping address
+# + name - Customer name
+# + phone - Customer phone
+public type CustomerShippingDetails record {
 	Address? address?; 
 	string? name;
 	string? phone?;       
 };
 
+# The customer’s tax IDs
+# 
+# + tax_id_type - Type of the tax ID, one of `eu_vat`, `br_cnpj`, `br_cpf`, `nz_gst`, `au_abn`, `in_gst`, `no_vat`, 
+#                 `za_vat`, `ch_vat`, `mx_rfc`, `sg_uen`, `ru_inn`, `ca_bn`, `hk_br`, `es_cif`, `tw_vat`, `th_vat`, 
+#                 `jp_cn`, `li_uid`, `my_itn`, `us_ein`, `kr_brn`, `ca_qst`, `my_sst`, or `sg_gst`
+# + value - Value of the tax ID
 public type CustomerTaxIdDataParams record {
-	string? taxIdtype?;
+	string? tax_id_type?;
 	string? value?;
 };
 
@@ -61,9 +93,3 @@ public type CustomerInvoiceCustomField record {
 	string? value?;
 };
 
-# Holds the parameters used to create a `Client`.
-#
-# + proxyConfig - Proxy configuration if connecting through a proxy
-public type Configuration record {|
-   http:ProxyConfig? proxyConfig = ();
-|};

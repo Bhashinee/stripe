@@ -85,3 +85,78 @@ function checkDeleteResponse(http:Response response) returns @tainted Error? {
         }
     }     
 }
+
+function createAddressQuery(Address address) returns string {
+    var city = address[CITY];
+    var country = address[COUNTRY];
+    var line1 = address[LINE1];
+    var line2 = address[LINE2];
+    var postalCode = address[POSTAL_CODE];
+    var state = address[STATE];
+    string addressQuery = "";
+    if (city is string) {
+        addressQuery = addressQuery + ADDRESS_CITY + getEncodedUri(city) + AND;
+    }
+    if (country is string) {
+        addressQuery = addressQuery + ADDRESS_COUNTRY + getEncodedUri(country) + AND;
+    }    
+    if (line1 is string) {
+        addressQuery = addressQuery + ADDRESS_LINE1 + getEncodedUri(line1) + AND;
+    } 
+    if (line2 is string) {
+        addressQuery = addressQuery + ADDRESS_LINE2 + getEncodedUri(line2) + AND;
+    } 
+    if (postalCode is string) {
+        addressQuery = addressQuery + ADDRESS_POSTAL_CODE + getEncodedUri(postalCode) + AND;
+    } 
+    if (state is string) {
+        addressQuery = addressQuery + ADDRESS_STATE + getEncodedUri(state) + AND;
+    } 
+    return addressQuery;
+} 
+
+function createShippingAddressQuery(CustomerShippingDetails shipping) returns string {
+    var city = shipping[ADDRESS][CITY];
+    var country = shipping[ADDRESS][COUNTRY];
+    var line1 = shipping[ADDRESS][LINE1];
+    var line2 = shipping[ADDRESS][LINE2];
+    var postalCode = shipping[ADDRESS][POSTAL_CODE];
+    var state = shipping[ADDRESS][STATE];
+    var name = shipping[NAME];
+    var phone = shipping[PHONE];
+    string shippingQuery = "";
+    if (city is string) {
+        shippingQuery = shippingQuery + SHIPPING_ADDRESS_CITY + getEncodedUri(city) + AND;
+    }
+    if (country is string) {
+        shippingQuery = shippingQuery + SHIPPING_ADDRESS_COUNTRY + getEncodedUri(country) + AND;
+    }    
+    if (line1 is string) {
+        shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE1 + getEncodedUri(line1) + AND;
+    } 
+    if (line2 is string) {
+        shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE2 + getEncodedUri(line2) + AND;
+    } 
+    if (postalCode is string) {
+        shippingQuery = shippingQuery + SHIPPING_POSTAL_CODE + postalCode + AND;
+    } 
+    if (state is string) {
+        shippingQuery = shippingQuery + SHIPPING_STATE + getEncodedUri(state) + AND;
+    } 
+    if (name is string) {
+        shippingQuery = shippingQuery + SHIPPING_NAME + getEncodedUri(name) + AND;
+    }
+    if (phone is string) {
+        shippingQuery = shippingQuery + SHIPPING_PHONE + getEncodedUri(phone) + AND;
+    }             
+    return shippingQuery;
+} 
+
+function checkForErrorResponse(json jsonResp) returns Error? {
+    json|error errorResp = jsonResp.'error;
+    if (errorResp is error) {
+        return ();
+    } else {    
+        return Error(message = errorResp.toJsonString());
+    }
+}

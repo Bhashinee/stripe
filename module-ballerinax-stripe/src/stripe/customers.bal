@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 public type Customers client object {
     private http:Client customers;
@@ -30,6 +31,7 @@ public type Customers client object {
     # + return - `Customer` record, or else a `stripe:Error` in case of a failure
     public remote function create(Customer customer) returns @tainted Customer|Error? {
         string queryString = createCustomerQuery(customer);
+        io:println(queryString);
         http:Response response = check createPostRequest(self.customers, queryString, self.path);
         return mapToCustomerRecord(response);        
     }
@@ -70,6 +72,14 @@ public type Customers client object {
     #
     # + return - An array of `Customer` records, if no customers are available the resulting record will be empty
     public remote function list() returns @tainted Customer[]|Error {
+        http:Response response = check createGetRequest(self.customers, self.path);
+        return mapToCustomers(response);
+    }
+
+    # Create a card.
+    #
+    # + return - An array of `Customer` records, if no customers are available the resulting record will be empty
+    public remote function createCard() returns @tainted Customer[]|Error {
         http:Response response = check createGetRequest(self.customers, self.path);
         return mapToCustomers(response);
     }

@@ -18,12 +18,13 @@ import ballerina/http;
 import ballerina/auth;
 
 public type Stripe object {
-    private string BASE_URL = "https://api.stripe.com";
     private http:Client stripe;
-    // private Charges charges;
+    private Charges charges;
     private Customers customers;
-    // private Invoices invoices;
+    private Invoices invoices;
     private Products products;
+    private Plans plans;
+    private Subscriptions subscriptions;
 
     public function __init(string token) {
         auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new ({
@@ -36,11 +37,13 @@ public type Stripe object {
                 authHandler: outboundBasicAuthHandler
             }
         }; 
-        self.stripe = new(self.BASE_URL, config = clientConfig);
-        // self.charges = new(self.stripe);
+        self.stripe = new(BASE_URL, config = clientConfig);
+        self.charges = new(self.stripe);
         self.customers = new(self.stripe);
-        // self.invoices = new(self.stripe);
+        self.invoices = new(self.stripe);
         self.products = new(self.stripe);
+        self.subscriptions = new(self.stripe);
+        self.plans = new(self.stripe);
     } 
 
     # The `Stripe.customers()` function can be used to retrieve the conversation client.
@@ -55,5 +58,33 @@ public type Stripe object {
     # + return - The conversation client
     public function products() returns Products {
         return self.products;
+    }
+
+    # The `Stripe.charges()` function can be used to retrieve the conversation client.
+    #
+    # + return - The conversation client
+    public function charges() returns Charges {
+        return self.charges;
+    }
+
+    # The `Stripe.subscriptions()` function can be used to retrieve the conversation client.
+    #
+    # + return - The conversation client
+    public function subscriptions() returns Subscriptions {
+        return self.subscriptions;
+    }
+
+    # The `Stripe.plans()` function can be used to retrieve the conversation client.
+    #
+    # + return - The conversation client
+    public function plans() returns Plans {
+        return self.plans;
+    }
+
+    # The `Stripe.plans()` function can be used to retrieve the conversation client.
+    #
+    # + return - The conversation client
+    public function invoices() returns Invoices {
+        return self.invoices;
     }
 }; 

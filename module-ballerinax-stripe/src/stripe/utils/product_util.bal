@@ -1,59 +1,70 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/http;
 
-
 function createProductQuery(Product proParams) returns string {
-    string proQuery = "";
     string attributesQuery = "";
-    string deactivateOnQuery = "";
-    string imagesQuery = "";
-    string queryString;
-    string dimensionsQuery = "";
+    string queryString = "";
     foreach [string, anydata] [key, value] in proParams.entries() {
-        if (key == "attributes") {
-            string[]? attr = proParams["attributes"];
+        if (key == PRODUCT_ATTRIBUTES) {
+            string[]? attr = proParams[PRODUCT_ATTRIBUTES];
             if (attr is string[]) {
                 foreach var item in attr {
                     io:println(item);
-                    attributesQuery = attributesQuery + "attributes[]=" + item + "&";
+                    attributesQuery = attributesQuery + ATTRIBUTES_QUERY + item + AND;
                 } 
             }   
-        } else if (key == "package_dimensions") {
-            var height = proParams?.package_dimensions["height"];
-            var length = proParams?.package_dimensions["length"];
-            var weight = proParams?.package_dimensions["weight"];
-            var width = proParams?.package_dimensions["width"];
+        } else if (key == PACKAGE_DIMENSIONS) {
+            var height = proParams?.package_dimensions[PACKAGE_HEIGHT];
+            var length = proParams?.package_dimensions[PACKAGE_LENGTH];
+            var weight = proParams?.package_dimensions[PACKAGE_WEIGHT];
+            var width = proParams?.package_dimensions[PACKAGE_WIDTH];
             if (height is float) {
-                dimensionsQuery = dimensionsQuery + "package_dimensions[height]=" + height.toString() + "&";
+                queryString = queryString + PACKAGE_DIMENSION_HEIGHT + height.toString() + AND;
             }
             if (length is float) {
-                dimensionsQuery = dimensionsQuery + "package_dimensions[length]=" + length.toString() + "&";
+                queryString = queryString + PACKAGE_DIMENSION_LENGTH + length.toString() + AND;
             }
             if (weight is float) {
-                dimensionsQuery = dimensionsQuery + "package_dimensions[weight]=" + weight.toString() + "&";
+                queryString = queryString + PACKAGE_DIMENSION_WEIGHT + weight.toString() + AND;
             }
             if (width is float) {
-                dimensionsQuery = dimensionsQuery + "package_dimensions[width]=" + width.toString() + "&";
+                queryString = queryString + PACKAGE_DIMENSION_WIDTH + width.toString() + AND;
             }
-        } else if (key == "deactivate_on") {
-            string[]? deactivateAttr = proParams["deactivate_on"];
+        } else if (key == DEACTIVATE_ON) {
+            string[]? deactivateAttr = proParams[DEACTIVATE_ON];
             if (deactivateAttr is string[]) {
                 foreach var item in deactivateAttr {
-                    attributesQuery = deactivateOnQuery + "deactivate_on[]=" + item + "&";
+                    queryString = queryString + DEACTIVATE_ON_QUERY + item + AND;
                 } 
             }
-        } else if (key == "images") {
-            string[]? imagesArr = proParams["images"];
+        } else if (key == IMAGES) {
+            string[]? imagesArr = proParams[IMAGES];
             if (imagesArr is string[]) {
                 foreach var item in imagesArr {
-                    attributesQuery = imagesQuery + "images[]=" + item + "&";
+                    attributesQuery = attributesQuery + IMAGES_QUERY + item + AND;
                 } 
             }
         } else {
-            proQuery = proQuery + key + "=" + getEncodedUri(value.toString()) + "&";
+            queryString = queryString + key + "=" + getEncodedUri(value.toString()) + AND;
         }
     }
-    queryString = proQuery + attributesQuery + dimensionsQuery + attributesQuery + imagesQuery;
+    queryString = queryString + attributesQuery;
     io:println("----------------------------------------");
     io:println(queryString);
     io:println("---------------------------------------------");
@@ -68,6 +79,7 @@ function mapToProductRecord(http:Response response) returns @tainted Product|Err
         io:println("---------------------------------");
         io:println(payload.toJsonString());
         io:println("---------------------------------");
+        check checkForErrorResponse(payload);
         Product|error product = Product.constructFrom(payload);
         if (product is error) {
             return Error(message = "Response cannot be converted to Product record", cause = product);
@@ -87,6 +99,7 @@ function mapToProducts(http:Response response) returns @tainted Product[]|Error 
             return setJsonResError(products);
         }
         json productsJson = <json> products;
+        check checkForErrorResponse(productsJson);
         Product[]|error productList = Product[].constructFrom(productsJson);
         if (productList is error) {
             return Error(message = "Response cannot be converted to Customer record", cause = productList);

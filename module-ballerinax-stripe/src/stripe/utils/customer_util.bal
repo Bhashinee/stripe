@@ -18,87 +18,42 @@ import ballerina/http;
 import ballerina/io;
 
 function createCustomerQuery(Customer cusParams) returns string {
-    string cusQuery = "";
-    string addressQuery = "";
-    string shippingAddressQuery = "";
-    string invoiceSettingsQuery = "";
-    string queryString;
+    string customerQuery = "";
     foreach [string, anydata] [key, value] in cusParams.entries() {
-        if (key == "address") {
-            var city = cusParams?.address["city"];
-            var country = cusParams?.address["country"];
-            var line1 = cusParams?.address["line1"];
-            var line2 = cusParams?.address["line2"];
-            var postalCode = cusParams?.address["postalCode"];
-            var state = cusParams?.address["state"];
-            if (city is string) {
-                addressQuery = addressQuery + "address[city]=" + getEncodedUri(city) + "&";
+        if (key == ADDRESS) {
+            Address? address = cusParams?.address;
+            if (address is Address) {
+                customerQuery = customerQuery + createAddressQuery(address);
             }
-            if (country is string) {
-                addressQuery = addressQuery + "address[country]=" + getEncodedUri(country) + "&";
-            }    
-            if (line1 is string) {
-                addressQuery = addressQuery + "address[line1]=" + getEncodedUri(line1) + "&";
-            } 
-            if (line2 is string) {
-                addressQuery = addressQuery + "address[line2]=" + getEncodedUri(line2) + "&";
-            } 
-            if (postalCode is string) {
-                addressQuery = addressQuery + "address[postalCode]=" + getEncodedUri(postalCode) + "&";
-            } 
-            if (state is string) {
-                addressQuery = addressQuery + "address[state]=" + getEncodedUri(state) + "&";
-            }       
-        } else if (key == "invoice_settings") {
-            var name = cusParams?.invoice_settings["name"];
-            var invoiceValue = cusParams?.invoice_settings["value"];
+        } else if (key == INVOICE_SETTINGS) {
+            var name = cusParams?.invoice_settings[NAME];
+            var invoiceValue = cusParams?.invoice_settings[VALUE];
             if (name is string) {
-                invoiceSettingsQuery = invoiceSettingsQuery + "invoice_settings[custom_fields][name]=" + getEncodedUri(name) + "&";                
+                customerQuery = customerQuery + INVOICE_SETTINGS_NAME + getEncodedUri(name) + AND;                
             }
             if (invoiceValue is string) {
-                invoiceSettingsQuery = invoiceSettingsQuery + "invoice_settings[custom_fields][value]=" + getEncodedUri(invoiceValue) + "&";                
+                customerQuery = customerQuery + INVOICE_SETTINGS_VALUE + getEncodedUri(invoiceValue) + AND;                
             }
-        } else if (key == "shipping") {
-            var city = cusParams?.shipping["address"]["city"];
-            var country = cusParams?.shipping["address"]["country"];
-            var line1 = cusParams?.shipping["address"]["line1"];
-            var line2 = cusParams?.shipping["address"]["line2"];
-            var postalCode = cusParams?.shipping["address"]["postalCode"];
-            var state = cusParams?.shipping["address"]["state"];
-            var name = cusParams?.shipping["name"];
-            var phone = cusParams?.shipping["phone"];
-            if (city is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][city]=" + getEncodedUri(city) + "&";
+        } else if (key == SHIPPING) {
+            CustomerShippingDetails? shipping = cusParams?.shipping;
+            if (shipping is CustomerShippingDetails) {
+                customerQuery = customerQuery + createShippingAddressQuery(shipping);
+            }       
+        } else if (key == TAX_ID_DATA) {
+            var taxIdType = cusParams?.tax_id_data[TAX_ID_TYPE];
+            var taxValue = cusParams?.tax_id_data[VALUE];
+            if (taxIdType is string) {
+                customerQuery = customerQuery + TAX_ID_DATA_TYPE + getEncodedUri(taxIdType) + AND;
+            } 
+            if (taxValue is string) {
+                customerQuery = customerQuery + TAX_ID_DATA_VALUE + getEncodedUri(taxValue) + AND;
             }
-            if (country is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][country]=" 
-                                        + getEncodedUri(country) + "&";
-            }    
-            if (line1 is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][line1]=" + getEncodedUri(line1) + "&";
-            } 
-            if (line2 is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][line2]=" + getEncodedUri(line2) + "&";
-            } 
-            if (postalCode is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][postalCode]=" 
-                                        + getEncodedUri(postalCode) + "&";
-            } 
-            if (state is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[address][state]=" + getEncodedUri(state) + "&";
-            } 
-            if (name is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[name]=" + getEncodedUri(name) + "&";
-            }
-            if (phone is string) {
-                shippingAddressQuery = shippingAddressQuery + "shipping[phone]=" + getEncodedUri(phone) + "&";
-            }            
-        } else {
-            cusQuery = cusQuery + key + "=" + getEncodedUri(value.toString()) + "&";
+        }
+        else {
+            customerQuery = customerQuery + key + "=" + getEncodedUri(value.toString()) + AND;
         }
     }
-    queryString = cusQuery + addressQuery + invoiceSettingsQuery + shippingAddressQuery;
-    return queryString;
+    return customerQuery;
 }
 
 function mapToCustomerRecord(http:Response response) returns @tainted Customer|Error {
@@ -109,6 +64,7 @@ function mapToCustomerRecord(http:Response response) returns @tainted Customer|E
         io:println("---------------------------------");
         io:println(payload.toJsonString());
         io:println("---------------------------------");
+        check checkForErrorResponse(payload);
         Customer|error customer = Customer.constructFrom(payload);
         if (customer is error) {
             return Error(message = "Response cannot be converted to Customer record", cause = customer);
@@ -128,6 +84,7 @@ function mapToCustomers(http:Response response) returns @tainted Customer[]|Erro
             return setJsonResError(customers);
         }
         json customersJson = <json> customers;
+        check checkForErrorResponse(customersJson);
         Customer[]|error customerList = Customer[].constructFrom(customersJson);
         if (customerList is error) {
             return Error(message = "Response cannot be converted to Customer record", cause = customerList);
