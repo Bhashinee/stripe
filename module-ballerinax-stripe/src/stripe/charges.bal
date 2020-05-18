@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/stringutils;
 
 public type Charges client object {
 
@@ -30,7 +31,8 @@ public type Charges client object {
     # + charge - Charge configurations
     # + return - `Charge` record, or else a `stripe:Error` in case of a failure
     public remote function create(Charge charge) returns @tainted Charge|Error {
-        string queryString = createChargeQuery(charge);
+        string queryString = createQuery("", charge);
+        queryString = stringutils:replace(queryString, "sourceId", "source");
         http:Response response = check createPostRequest(self.charges, queryString, self.path);
         return mapToChargeRecord(response); 
     }
@@ -52,7 +54,7 @@ public type Charges client object {
     # + return - `Charge` record, or else a `stripe:Error` in case of a failure
     public remote function update(string chargeId, Charge charge) returns @tainted Charge|Error {
         string path = self.path + "/" + chargeId;
-        string queryString = createChargeQuery(charge);
+        string queryString = createQuery("", charge);
         http:Response response = check createPostRequest(self.charges, queryString, path);
         return mapToChargeRecord(response);
     }
@@ -64,7 +66,7 @@ public type Charges client object {
     # + return - `Charge` record or else a `stripe:Error` if it is already refunded, expired, captured, or an invalid capture amount is specified.
     public remote function capture(string chargeId, Capture capture) returns @tainted Charge|Error {
         string path = self.path + "/" + chargeId + "/capture";
-        string queryString = createCaptureQuery(capture);
+        string queryString = createQuery("", capture);
         http:Response response = check createPostRequest(self.charges, queryString, path);
         return mapToChargeRecord(response);
     }

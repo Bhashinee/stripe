@@ -17,72 +17,72 @@
 import ballerina/http;
 import ballerina/io;
 
-function createChargeQuery(Charge chargeParams) returns string {
-    string chargeQuery = "";
-    string transferQuery = "";
-    string shippingQuery = "";
-    string queryString;
-    foreach [string, anydata] [key, value] in chargeParams.entries() {
-        if (key == SHIPPING) {
-            var city = chargeParams?.shipping[ADDRESS][CITY];
-            var country = chargeParams?.shipping[ADDRESS][COUNTRY];
-            var line1 = chargeParams?.shipping[ADDRESS][ADDRESS_LINE1];
-            var line2 = chargeParams?.shipping[ADDRESS][ADDRESS_LINE2];
-            var postalCode = chargeParams?.shipping[ADDRESS][POSTAL_CODE];
-            var state = chargeParams?.shipping[ADDRESS][STATE];
-            var name = chargeParams?.shipping[NAME];
-            var phone = chargeParams?.shipping[PHONE];
-            var carrier = chargeParams?.shipping[CARRIER];
-            var trackingNum = chargeParams?.shipping[TRACKING_NUMBER];
-            if (city is string) {
-                shippingQuery = shippingQuery + SHIPPING_ADDRESS_CITY + getEncodedUri(city) + AND;
-            }
-            if (country is string) {
-                shippingQuery = shippingQuery + SHIPPING_ADDRESS_COUNTRY + getEncodedUri(country) + AND;
-            }    
-            if (line1 is string) {
-                shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE1 + getEncodedUri(line1) + AND;
-            } 
-            if (line2 is string) {
-                shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE2 + getEncodedUri(line2) + AND;
-            } 
-            if (postalCode is string) {
-                shippingQuery = shippingQuery + SHIPPING_POSTAL_CODE + getEncodedUri(postalCode) + AND;
-            } 
-            if (state is string) {
-                shippingQuery = shippingQuery + SHIPPING_STATE + getEncodedUri(state) + AND;
-            } 
-            if (name is string) {
-                shippingQuery = shippingQuery + SHIPPING_NAME + getEncodedUri(name) + AND;
-            }
-            if (phone is string) {
-                shippingQuery = shippingQuery + SHIPPING_PHONE + getEncodedUri(phone) + AND;
-            }   
-            if (carrier is string) {
-                shippingQuery = shippingQuery + SHIPPING_CARRIER + getEncodedUri(carrier) + AND;
-            }  
-            if (trackingNum is string) {
-                shippingQuery = shippingQuery + SHIPPING_TRACKING_NUMBER + getEncodedUri(trackingNum) + AND;
-            }      
-        } else if (key == "sourceId") {
-                chargeQuery = chargeQuery + "source=" + getEncodedUri(value.toString()) + AND;
-        } else if (key == "transfer_data") {
-            var amount = chargeParams[AMOUNT];
-            var destination = chargeParams[DESTINATION];
-            if (amount is int) {
-                transferQuery = transferQuery + TRANSFER_DATA_AMOUNT + amount.toString() + AND;
-            } 
-            if (destination is string) {
-                transferQuery = transferQuery + TRANSFER_DATA_DESTINATION + destination.toString() + AND;
-            }
-        } else {
-            chargeQuery = chargeQuery + key + "=" + getEncodedUri(value.toString()) + AND;
-        }
-    }
-    queryString = chargeQuery + transferQuery + shippingQuery;
-    io:println(queryString);
-    return queryString;
-}
+// function createChargeQuery(Charge chargeParams) returns string {
+//     string chargeQuery = "";
+//     string transferQuery = "";
+//     string shippingQuery = "";
+//     string queryString;
+//     foreach [string, anydata] [key, value] in chargeParams.entries() {
+//         if (key == SHIPPING) {
+//             var city = chargeParams?.shipping[ADDRESS][CITY];
+//             var country = chargeParams?.shipping[ADDRESS][COUNTRY];
+//             var line1 = chargeParams?.shipping[ADDRESS][LINE1];
+//             var line2 = chargeParams?.shipping[ADDRESS][LINE2];
+//             var postalCode = chargeParams?.shipping[ADDRESS][POSTAL_CODE];
+//             var state = chargeParams?.shipping[ADDRESS][STATE];
+//             var name = chargeParams?.shipping[NAME];
+//             var phone = chargeParams?.shipping[PHONE];
+//             var carrier = chargeParams?.shipping[CARRIER];
+//             var trackingNum = chargeParams?.shipping[TRACKING_NUMBER];
+//             if (city is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_ADDRESS_CITY + getEncodedUri(city) + AND;
+//             }
+//             if (country is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_ADDRESS_COUNTRY + getEncodedUri(country) + AND;
+//             }    
+//             if (line1 is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE1 + getEncodedUri(line1) + AND;
+//             } 
+//             if (line2 is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_ADDRESS_LINE2 + getEncodedUri(line2) + AND;
+//             } 
+//             if (postalCode is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_POSTAL_CODE + getEncodedUri(postalCode) + AND;
+//             } 
+//             if (state is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_STATE + getEncodedUri(state) + AND;
+//             } 
+//             if (name is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_NAME + getEncodedUri(name) + AND;
+//             }
+//             if (phone is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_PHONE + getEncodedUri(phone) + AND;
+//             }   
+//             if (carrier is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_CARRIER + getEncodedUri(carrier) + AND;
+//             }  
+//             if (trackingNum is string) {
+//                 shippingQuery = shippingQuery + SHIPPING_TRACKING_NUMBER + getEncodedUri(trackingNum) + AND;
+//             }      
+//         } else if (key == "sourceId") {
+//                 chargeQuery = chargeQuery + "source=" + getEncodedUri(value.toString()) + AND;
+//         } else if (key == "transfer_data") {
+//             var amount = chargeParams[AMOUNT];
+//             var destination = chargeParams[DESTINATION];
+//             if (amount is int) {
+//                 transferQuery = transferQuery + TRANSFER_DATA_AMOUNT + amount.toString() + AND;
+//             } 
+//             if (destination is string) {
+//                 transferQuery = transferQuery + TRANSFER_DATA_DESTINATION + destination.toString() + AND;
+//             }
+//         } else {
+//             chargeQuery = chargeQuery + key + "=" + getEncodedUri(value.toString()) + AND;
+//         }
+//     }
+//     queryString = chargeQuery + transferQuery + shippingQuery;
+//     io:println(queryString);
+//     return queryString;
+// }
 
 function mapToChargeRecord(http:Response response) returns @tainted Charge|Error {
     json|error payload = response.getJsonPayload();

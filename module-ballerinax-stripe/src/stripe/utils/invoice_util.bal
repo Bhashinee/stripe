@@ -17,39 +17,65 @@
 import ballerina/http;
 import ballerina/io;
 
-function createInvoiceQuery(Invoice invoiceParams) returns string {
-    string customFields = "";
-    string invoiceQuery = "";
-    string taxQuery = ""; 
-    foreach [string, anydata] [key, value] in invoiceParams.entries() {
-        if (key == "custom_fields") {
-            var customFieldsRecord = invoiceParams?.custom_fields;
-            if (customFieldsRecord is InvoiceCustomFields) {
-                var name = customFieldsRecord["name"];
-                var invoiceValue = customFieldsRecord["value"];
-                if (name is string) {
-                    customFields = customFields + "custom_fields[name]=" + name + "&";
-                }
-                if (invoiceValue is string) {
-                    customFields = customFields + "custom_fields[value]=" + invoiceValue + "&";
-                }
-            }
-        } 
-        else if (key == "tax_rates") {
-            string[]? taxRates = invoiceParams["tax_rates"];
-            if (taxRates is string[]) {
-                foreach var tax in taxRates {
-                    taxQuery = taxQuery + "\"" + tax + "\",";
-                }
-                io:println(taxQuery);
-                taxQuery = "default_tax_rates = [" + taxQuery.substring(0, taxQuery.length() - 1) + "]";
-            }
+// function createInvoiceQuery(Invoice invoiceParams) returns string {
+//     string customFields = "";
+//     string invoiceQuery = "";
+//     string taxQuery = ""; 
+//     foreach [string, anydata] [key, value] in invoiceParams.entries() {
+//         if (key == "custom_fields") {
+//             var customFieldsRecord = invoiceParams?.custom_fields;
+//             if (customFieldsRecord is InvoiceCustomFields) {
+//                 var name = customFieldsRecord["name"];
+//                 var invoiceValue = customFieldsRecord["value"];
+//                 if (name is string) {
+//                     customFields = customFields + "custom_fields[name]=" + name + "&";
+//                 }
+//                 if (invoiceValue is string) {
+//                     customFields = customFields + "custom_fields[value]=" + invoiceValue + "&";
+//                 }
+//             }
+//         } 
+//         else if (key == "tax_rates") {
+//             string[]? taxRates = invoiceParams["tax_rates"];
+//             if (taxRates is string[]) {
+//                 foreach var tax in taxRates {
+//                     taxQuery = taxQuery + "\"" + tax + "\",";
+//                 }
+//                 io:println(taxQuery);
+//                 taxQuery = "default_tax_rates = [" + taxQuery.substring(0, taxQuery.length() - 1) + "]";
+//             }
 
-        }
-        invoiceQuery = invoiceQuery + key + "=" + getEncodedUri(value.toString()) + "&";
-    }
-    return customFields + invoiceQuery + taxQuery;
-}
+//         }
+//         invoiceQuery = invoiceQuery + key + "=" + getEncodedUri(value.toString()) + "&";
+//     }
+//     return customFields + invoiceQuery + taxQuery;
+// }
+
+// function createInvoiceItemQuery(AnyData invoiceItemParams) returns string {
+//     string customFields = "";
+//     string invoiceQuery = "";
+//     string taxQuery = ""; 
+//     foreach [string, anydata] [key, value] in invoiceItemParams.entries() {
+//         if (key == "price_data") {
+//             var priceDataRecord = invoiceItemParams?.price_data;
+//             if (priceDataRecord is PriceData) {
+//                 var currency = priceDataRecord["currency"];
+//                 var product = priceDataRecord["product"];
+//                 var unitAmount = priceDataRecord["unit_amount"];
+//                 var unitAmountDecmal = priceDataRecord["unit_amount_decimal"];
+//                 if (name is string) {
+//                     customFields = customFields + "custom_fields[name]=" + name + "&";
+//                 }
+//                 if (invoiceValue is string) {
+//                     customFields = customFields + "custom_fields[value]=" + invoiceValue + "&";
+//                 }
+//             }
+//         } else {
+//             invoiceQuery = invoiceQuery + key + "=" + getEncodedUri(value.toString()) + "&";
+//         }
+//     }
+//     return customFields + invoiceQuery + taxQuery;
+// }
 
 function mapToInvoiceRecord(http:Response response) returns @tainted Invoice|Error {
     json|error payload = response.getJsonPayload();
@@ -69,13 +95,13 @@ function mapToInvoiceRecord(http:Response response) returns @tainted Invoice|Err
     }        
 }
 
-function createInvoicePayQuery(InvoicePay invoicePay) returns string {
-    string payQuery = "";
-    foreach [string, anydata] [key, value] in invoicePay.entries() {
-        payQuery = payQuery + key + "=" + getEncodedUri(value.toString()) + "&";
-    }
-    return payQuery;
-}
+// function createInvoicePayQuery(InvoicePay invoicePay) returns string {
+//     string payQuery = "";
+//     foreach [string, anydata] [key, value] in invoicePay.entries() {
+//         payQuery = payQuery + key + "=" + getEncodedUri(value.toString()) + "&";
+//     }
+//     return payQuery;
+// }
 
 function mapToInvoices(http:Response response) returns @tainted Invoice[]|Error {
     json|error payload = response.getJsonPayload();
@@ -94,6 +120,24 @@ function mapToInvoices(http:Response response) returns @tainted Invoice[]|Error 
             return Error(message = "Response cannot be converted to Customer record", cause = invoicesList);
         } else {
             return invoicesList;
+        }
+    }        
+}
+
+function mapToInvoiceItemRecord(http:Response response) returns @tainted InvoiceItem|Error {
+    json|error payload = response.getJsonPayload();
+    if (payload is error) {
+        return setJsonResError(payload);
+    } else {
+        io:println("---------------------------------");
+        io:println(payload.toJsonString());
+        io:println("---------------------------------");
+        check checkForErrorResponse(payload);
+        InvoiceItem|error invoiceItem = InvoiceItem.constructFrom(payload);
+        if (invoiceItem is error) {
+            return Error(message = "Response cannot be converted to Customer record", cause = invoiceItem);
+        } else {
+            return invoiceItem;
         }
     }        
 }

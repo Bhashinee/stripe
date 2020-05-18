@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 public type Products client object {
 
@@ -30,7 +31,8 @@ public type Products client object {
    # + product - Product configurations
    # + return - `Product` record, or else a `stripe:Error` in case of a failure
    public remote function create(Product product) returns @tainted Product|Error {
-     string queryString = createProductQuery(product);
+     string queryString = createQuery("", product);
+     io:println(queryString);
      http:Response response = check createPostRequest(self.products, queryString, self.path);
      return mapToProductRecord(response);
    }
@@ -53,7 +55,7 @@ public type Products client object {
    # + return - `Product` record, or else a `stripe:Error` in case of a failure
    public remote function update(string productId, Product product) returns @tainted Product|Error {
      string path = self.path + "/" + productId;
-     string queryString = createProductQuery(product);
+     string queryString = createQuery("", product);
      http:Response response = check createPostRequest(self.products, queryString, path);
      return mapToProductRecord(response);
    }

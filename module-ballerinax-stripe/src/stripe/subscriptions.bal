@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/stringutils;
 
 public type Subscriptions client object {
    private http:Client subscriptions;
@@ -29,7 +30,8 @@ public type Subscriptions client object {
    # + subscription - Subscription configurations
    # + return - `Subscription` record, or else a `stripe:Error` in case of a failure
    public remote function create(Subscription subscription) returns @tainted Subscription|Error {
-      string queryString = createSubscriptionQuery(subscription);
+      string queryString = createQuery("", subscription);
+      queryString = stringutils:replace(queryString, "subscription_items", "items");
       http:Response response = check createPostRequest(self.subscriptions, queryString, self.path);
       return mapToSubscriptionRecord(response);
    }
@@ -51,7 +53,8 @@ public type Subscriptions client object {
    # + return - `Subscription` record, or else a `stripe:Error` in case of a failure
    public remote function update(string subscriptionId, Subscription subscription) returns @tainted Subscription|Error {
       string path = self.path + "/" + subscriptionId;
-      string queryString = createSubscriptionQuery(subscription);
+      string queryString = createQuery("", subscription);
+      queryString = stringutils:replace(queryString, "subscription_items", "items");
       http:Response response = check createPostRequest(self.subscriptions, queryString, path);
       return mapToSubscriptionRecord(response);
    }

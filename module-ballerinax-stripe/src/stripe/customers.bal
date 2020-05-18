@@ -30,7 +30,7 @@ public type Customers client object {
     # + customer - Customer configurations
     # + return - `Customer` record, or else a `stripe:Error` in case of a failure
     public remote function create(Customer customer) returns @tainted Customer|Error? {
-        string queryString = createCustomerQuery(customer);
+        string queryString = createQuery("", customer);
         io:println(queryString);
         http:Response response = check createPostRequest(self.customers, queryString, self.path);
         return mapToCustomerRecord(response);        
@@ -53,7 +53,7 @@ public type Customers client object {
     # + return - `Customer` record, or else a `stripe:Error` in case of a failure
     public remote function update(string customerId, Customer customer) returns @tainted Customer|Error {
         string path = self.path + "/" + customerId;
-        string queryString = createCustomerQuery(customer);
+        string queryString = createQuery("", customer);
         http:Response response = check createPostRequest(self.customers, queryString, path);
         return mapToCustomerRecord(response);
     }
@@ -78,10 +78,15 @@ public type Customers client object {
 
     # Create a card.
     #
+    # + card - Card configurations
+    # + customerId - Customer Id
     # + return - An array of `Customer` records, if no customers are available the resulting record will be empty
-    public remote function createCard() returns @tainted Customer[]|Error {
-        http:Response response = check createGetRequest(self.customers, self.path);
-        return mapToCustomers(response);
+    public remote function createCard(string customerId, Card card) returns @tainted Card|Error {
+        string queryString = createQuery("", card);
+        io:println(queryString);
+        string path = self.path + "/" + customerId + "/" + "sources";
+        http:Response response = check createGetRequest(self.customers, path);
+        return mapToCardRecord(response);
     }
 };
 

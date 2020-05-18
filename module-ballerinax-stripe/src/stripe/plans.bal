@@ -30,7 +30,7 @@ public type Plans client object {
    # + plan - Billing plan configurations
    # + return - `Plan` record, or else a `stripe:Error` in case of a failure
    public remote function create(Plan plan) returns @tainted Plan|Error {
-        string queryString = createPlanQuery(plan);
+        string queryString = createQuery("", plan);
         io:println(queryString);
         http:Response response = check createPostRequest(self.plans, queryString, self.path);
         return mapToPlanRecord(response);
@@ -53,7 +53,7 @@ public type Plans client object {
    # + return - `Plan` record, or else a `stripe:Error` in case of a failure
    public remote function update(string planId, Plan plan) returns @tainted Plan|Error {
         string path = self.path + "/" + planId;
-        string queryString = createPlanQuery(plan);
+        string queryString = createQuery("", plan);
         http:Response response = check createPostRequest(self.plans, queryString, path);
         return mapToPlanRecord(response);
    }

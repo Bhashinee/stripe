@@ -52,6 +52,7 @@ const string ADDRESS_STATE = "address[state]=";
 const string INVOICE_SETTINGS = "invoice_settings";
 const string INVOICE_SETTINGS_NAME = "invoice_settings[custom_fields][name]=";
 const string INVOICE_SETTINGS_VALUE = "invoice_settings[custom_fields][value]=";
+const string INVOICE_ITEM_PRICE_DATA = "price_data";
 const string TAX_ID_TYPE = "tax_id_type";
 const string TAX_ID_DATA_TYPE = "tax_id_data[type]=";
 const string TAX_ID_DATA_VALUE = "tax_id_data[value]=";

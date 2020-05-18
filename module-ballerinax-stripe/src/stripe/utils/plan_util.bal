@@ -17,88 +17,88 @@
 import ballerina/http;
 import ballerina/io;
 
-function createPlanQuery(Plan planParams) returns string {
-    string tierQuery = "";
-    string planQuery = "";
+// function createPlanQuery(Plan planParams) returns string {
+//     string tierQuery = "";
+//     string planQuery = "";
 
-    foreach [string, anydata] [key, value] in planParams.entries() {
-        if (key == PRODUCT) {
-            var productRecord = planParams?.product;
-            if (productRecord is PlanProduct) {
-                var active = productRecord[ACTIVE];
-                var name = productRecord[NAME];
-                var id = productRecord[ID];
-                var unitLabel = productRecord[UNIT_LABEL];
-                var statementDescriptor = productRecord[STATEMENT_DESCRIPTOR];
-                if (active is boolean) {
-                    planQuery = planQuery + PRODUCT_ACTIVE + active.toString() + AND;
-                }
-                if (name is string) {
-                    planQuery = planQuery + PRODUCT_NAME + getEncodedUri(name) + AND;
-                }
-                if (id is string) {
-                    planQuery = planQuery + PRODUCT_ID + getEncodedUri(id) + AND;
-                }
-                if (statementDescriptor is string) {
-                    planQuery = planQuery + PRODUCT_STATEMENT_DESCRIPTOR + getEncodedUri(statementDescriptor) + AND;
-                }
-                if (unitLabel is string) {
-                    planQuery = planQuery + PRODUCT_UNIT_LABEL + getEncodedUri(unitLabel) + AND;
-                }
-            } 
-            else {
-                planQuery = planQuery + key + "=" + getEncodedUri(value.toString()) + AND;
-            }
-        } else if (key == PRICE_TIERS) {
-            var tierArray = planParams?.price_tiers;
-            if (tierArray is PlanTierParams[]) {
-                int count = 0;
-                foreach var tier in tierArray {
-                    var flatAmount = tier[FLAT_AMOUNT];
-                    var flatAmountDec = tier[FLAT_AMOUNT_DECIMAL];
-                    var unitAmount = tier[UNIT_AMOUNT];
-                    var unitAmountDec = tier[UNIT_AMOUNT_DECIMAL];
-                    var upTo = tier[UP_TO];
-                    if (flatAmount is int) {
-                        tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" 
-                                    + FLAT_AMOUNT + "]=" + flatAmount.toString() + AND;
-                    }
-                    if (flatAmountDec is float) {
-                        tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" 
-                                    + FLAT_AMOUNT_DECIMAL + "]=" + flatAmountDec.toString() + AND;
-                    }
-                    if (unitAmount is int) {
-                        tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UNIT_AMOUNT + "]=" 
-                                    + unitAmount.toString() + AND;
-                    }
-                    if (unitAmountDec is float) {
-                        tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UNIT_AMOUNT_DECIMAL + "]=" 
-                                    + unitAmountDec.toString() + AND;
-                    }
-                    if (upTo is string) {
-                        tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UP_TO + "]=" + upTo + AND;
-                    }
-                    count = count + 1;
-                }
-            }
-        } else if (key == TRANSFORM_USAGE) {
-            var transformRecord = planParams?.transform_usage;
-            if (transformRecord is PlanTransformUsageParams) {
-                var devideBy = transformRecord[DIVIDED_BY];
-                var round = transformRecord[ROUND];
-                if (devideBy is int) {
-                    planQuery = planQuery + TRANSFORM_USAGE_DIVIDED_BY + devideBy.toString() + AND;
-                }
-                if (round is string) {
-                    planQuery = planQuery + TRANSFORM_USAGE_ROUND + getEncodedUri(round) + AND;
-                }
-            }
-        } else {
-            planQuery = planQuery + key + "=" + getEncodedUri(value.toString()) + AND;
-        }
-    }
-    return planQuery + tierQuery;
-}
+//     foreach [string, anydata] [key, value] in planParams.entries() {
+//         if (key == PRODUCT) {
+//             var productRecord = planParams?.product;
+//             if (productRecord is PlanProduct) {
+//                 var active = productRecord[ACTIVE];
+//                 var name = productRecord[NAME];
+//                 var id = productRecord[ID];
+//                 var unitLabel = productRecord[UNIT_LABEL];
+//                 var statementDescriptor = productRecord[STATEMENT_DESCRIPTOR];
+//                 if (active is boolean) {
+//                     planQuery = planQuery + PRODUCT_ACTIVE + active.toString() + AND;
+//                 }
+//                 if (name is string) {
+//                     planQuery = planQuery + PRODUCT_NAME + getEncodedUri(name) + AND;
+//                 }
+//                 if (id is string) {
+//                     planQuery = planQuery + PRODUCT_ID + getEncodedUri(id) + AND;
+//                 }
+//                 if (statementDescriptor is string) {
+//                     planQuery = planQuery + PRODUCT_STATEMENT_DESCRIPTOR + getEncodedUri(statementDescriptor) + AND;
+//                 }
+//                 if (unitLabel is string) {
+//                     planQuery = planQuery + PRODUCT_UNIT_LABEL + getEncodedUri(unitLabel) + AND;
+//                 }
+//             } 
+//             else {
+//                 planQuery = planQuery + key + "=" + getEncodedUri(value.toString()) + AND;
+//             }
+//         } else if (key == PRICE_TIERS) {
+//             var tierArray = planParams?.price_tiers;
+//             if (tierArray is PlanTierParams[]) {
+//                 int count = 0;
+//                 foreach var tier in tierArray {
+//                     var flatAmount = tier[FLAT_AMOUNT];
+//                     var flatAmountDec = tier[FLAT_AMOUNT_DECIMAL];
+//                     var unitAmount = tier[UNIT_AMOUNT];
+//                     var unitAmountDec = tier[UNIT_AMOUNT_DECIMAL];
+//                     var upTo = tier[UP_TO];
+//                     if (flatAmount is int) {
+//                         tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" 
+//                                     + FLAT_AMOUNT + "]=" + flatAmount.toString() + AND;
+//                     }
+//                     if (flatAmountDec is float) {
+//                         tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" 
+//                                     + FLAT_AMOUNT_DECIMAL + "]=" + flatAmountDec.toString() + AND;
+//                     }
+//                     if (unitAmount is int) {
+//                         tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UNIT_AMOUNT + "]=" 
+//                                     + unitAmount.toString() + AND;
+//                     }
+//                     if (unitAmountDec is float) {
+//                         tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UNIT_AMOUNT_DECIMAL + "]=" 
+//                                     + unitAmountDec.toString() + AND;
+//                     }
+//                     if (upTo is string) {
+//                         tierQuery = tierQuery + TIERS + "[" + count.toString() + "][" + UP_TO + "]=" + upTo + AND;
+//                     }
+//                     count = count + 1;
+//                 }
+//             }
+//         } else if (key == TRANSFORM_USAGE) {
+//             var transformRecord = planParams?.transform_usage;
+//             if (transformRecord is PlanTransformUsageParams) {
+//                 var devideBy = transformRecord[DIVIDED_BY];
+//                 var round = transformRecord[ROUND];
+//                 if (devideBy is int) {
+//                     planQuery = planQuery + TRANSFORM_USAGE_DIVIDED_BY + devideBy.toString() + AND;
+//                 }
+//                 if (round is string) {
+//                     planQuery = planQuery + TRANSFORM_USAGE_ROUND + getEncodedUri(round) + AND;
+//                 }
+//             }
+//         } else {
+//             planQuery = planQuery + key + "=" + getEncodedUri(value.toString()) + AND;
+//         }
+//     }
+//     return planQuery + tierQuery;
+// }
 
 function mapToPlanRecord(http:Response response) returns @tainted Plan|Error {
     json|error payload = response.getJsonPayload();

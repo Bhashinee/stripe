@@ -21,6 +21,8 @@ Customers customers = stripeClient.customers();
 Products products = stripeClient.products();
 Plans plans = stripeClient.plans();
 Subscriptions subscriptions = stripeClient.subscriptions();
+Charges charges = stripeClient.charges();
+Invoices invoices = stripeClient.invoices();
 string customerId = "";
 string productId = "";
 string planId = "";
@@ -56,7 +58,22 @@ Customer customerUpdateParams = {
     description: "Updated description"
 };
 
-@test:Config {}
+Card card = {
+    'object: "card",
+    number: "4242424242424242",
+    exp_month: "12",
+    exp_year: "2021",
+    cvc: "123",
+    name: "Bhashinee",
+    address_line1: "345/1",
+    address_line2: "Palm Grove",
+    address_city: "Colombo",
+    address_state: "Western",
+    address_zip: "10234",
+    address_country: "Sri Lanka"
+};
+
+// @test:Config {}
 function testCustomerFunctions() {
     Customer|Error? createdCustomer = customers->create(customerParams);
     if (createdCustomer is Error) {
@@ -99,6 +116,16 @@ function testCustomerFunctions() {
     if (deletecustomer is Error) {
         test:assertFail(msg = <string>deletecustomer.detail()?.message);
     }
+
+    // Card|Error createCard = customers->createCard("cus_HHWIJPAUfcXYNH", card);
+    // if (createCard is Error) {
+    //     test:assertFail(msg = <string>createCard.detail()?.message);
+    // } else {
+    //     anydata brand = createCard["brand"];
+    //     if (brand is string) {
+    //         test:assertEquals(brand, "Visa");
+    //     }
+    // }
 }
 
 Product product = {
@@ -106,7 +133,7 @@ Product product = {
 	attributes: ["size", "colour"],
 	caption: "thisisthecaption",
 	description: "Describing the product",
-	images: ["https://image.shutterstock.com/image-photo/ceramic-cup-isolated-on-white-260nw-1048628651.jpg"],
+	images: ["https://media.gettyimages.com/photos/red-cup-picture-id171368204?s=612x612", "https://i.ytimg.com/vi/3lX0tg7CEJw/maxresdefault.jpg"],
 	name: "Blue Cup",
 	package_dimensions: {
         height : 3.2,
@@ -123,7 +150,7 @@ Product updateProduct = {
 	description: "Updated description"
 };
 
-@test:Config {}
+// @test:Config {}
 function testProductFunctions() {
     Product|Error? createdProduct = products->create(product);
     if (createdProduct is Error) {
@@ -182,7 +209,7 @@ Plan plan = {
     aggregate_usage: "last_ever",
     billing_scheme: "tiered",
     id: "PlanId2",
-    price_tiers: [{
+    tiers: [{
         flat_amount_decimal: 3.0,
         unit_amount: 5,
         up_to: "inf"
@@ -197,7 +224,7 @@ Plan updatePlan = {
     nickname: "RedPursePlan1"
 };
 
-@test:Config {}
+// @test:Config {}
 function testPlanFunctions() {
     Plan|Error? createdPlan = plans->create(plan);
     if (createdPlan is Error) {
@@ -259,7 +286,7 @@ Subscription subs = {
         reset_billing_cycle_anchor: false
     },
     subscription_items: [{
-        subscription_plan: "TutePlan"
+        plan: "TutePlan"
     }],
     collection_method: "send_invoice",
     days_until_due: 30,
@@ -292,7 +319,7 @@ Subscription updateSubs = {
     trial_from_plan: false
 };
 
-@test:Config {}
+// @test:Config {}
 function testSubscriptionFunctions() {
     // Subscription|Error? createdSubscription = subscriptions->create(subs);
     // if (createdSubscription is Error) {
@@ -331,4 +358,138 @@ function testSubscriptionFunctions() {
         }
     } 
 }
+
+Charge charge = {
+    amount: 2000,
+    currency: "usd",
+    customer: "cus_HHWIJPAUfcXYNH",
+    description: "Charge for customer",
+    receipt_email: "bhashi@gmail.com",
+    shipping: {
+        address: {
+            city: "colombo",
+            country: "Sri Lanka",
+            line1: "456/2",
+            line2: "Palm Grove",
+            postal_code: "1004",
+            state: "western"
+        },
+        carrier: "fedex",
+        name: "customer",
+        phone: "09234323",
+        tracking_number: "3456"
+    },
+    sourceId: "card_1GjymEJ7y0eOXqiMOr7j1Psz",
+    statement_descriptor: "descriptor",
+    statement_descriptor_suffix: "cd",
+    transfer_group: "group1"
+};
+
+// @test:Config {}
+function testChargeFunctions() {
+    // Charge|Error? createdCharge = charges->create(charge);
+    // if (createdCharge is Error) {
+    //     test:assertFail(msg = <string>createdCharge.detail()?.message);
+    // } else {
+    //     anydata result = createdCharge["id"];
+    //     if (result is string) {
+    //         io:println(result);
+    //     }
+    // }
+
+    Charge|Error? retrievedCharge= charges->retrieve("ch_1Gjz58J7y0eOXqiMuskxrhFa");
+    if (retrievedCharge is Error) {
+        test:assertFail(msg = <string>retrievedCharge.detail()?.message);
+    } else {
+        if (retrievedCharge is Charge) {
+            string? customer = retrievedCharge["customer"];
+            if (customer is string) {
+                test:assertEquals(customer, "cus_HHWIJPAUfcXYNH");
+            }
+        }
+    }
+
+    Charge[]|Error? listCharges = charges->list();
+    if (listCharges is Error) {
+        test:assertFail(msg = <string>listCharges.detail()?.message);
+    }
+}
+    Invoice invo = {
+        customer: "cus_HHWIJPAUfcXYNH"
+    };
+
+    Invoice updateInvo = {
+        description: "update description"
+    };
+
+    InvoiceItem invoiceItem = {
+        customer : "cus_HHWIJPAUfcXYNH", 
+        currency: "usd",
+        description: "description",
+        discountable: true,
+        price_data: {
+            currency: "usd",
+            product: "prod_HHWNWWsSZ91sDy",
+            unit_amount: 2
+        },
+        period: {
+            end: 1587443917,
+            'start: 1587443917
+        },
+        quantity: 10
+    };
+
+@test:Config {}
+function testInvoiceFunctions() {
+    // InvoiceItem|Error? createdInvoice = invoices->createInvoiceItem(invoiceItem);
+    // if (createdInvoice is Error) {
+    //     test:assertFail(msg = <string>createdInvoice.detail()?.message);
+    // } else {
+    //     anydata result = createdInvoice["id"];
+    //     if (result is string) {
+    //         io:println(result);
+    //     }
+    // }
+
+    // Invoice|Error? createdInvoice = invoices->create(invo);
+    // if (createdInvoice is Error) {
+    //     test:assertFail(msg = <string>createdInvoice.detail()?.message);
+    // } else {
+    //     anydata result = createdInvoice["id"];
+    //     if (result is string) {
+    //         io:println(result);
+    //     }
+    // }
+
+    Invoice|Error? retrievedInvoice= invoices->retrieve("in_1GkAJKJ7y0eOXqiMsWkHIA4m");
+    if (retrievedInvoice is Error) {
+        test:assertFail(msg = <string>retrievedInvoice.detail()?.message);
+    } else {
+        if (retrievedInvoice is Invoice) {
+            string? customerId = retrievedInvoice["customer"];
+            if (customerId is string) {
+                test:assertEquals(customerId, "cus_HHWIJPAUfcXYNH");
+            }
+        }
+    }
+
+    Invoice|Error? updatedInvoice= invoices->update("in_1GkAJKJ7y0eOXqiMsWkHIA4m", updateInvo);
+    if (updatedInvoice is Error) {
+        test:assertFail(msg = <string>updatedInvoice.detail()?.message);
+    } else {
+        if (updatedInvoice is Invoice) {
+            string? description = updatedInvoice["description"];
+            if (description is string) {
+                test:assertEquals(description, "update description");
+            }
+        }
+    }
+
+    // Charge[]|Error? listCharges = charges->list();
+    // if (listCharges is Error) {
+    //     test:assertFail(msg = <string>listCharges.detail()?.message);
+    // }
+}
+
+
 

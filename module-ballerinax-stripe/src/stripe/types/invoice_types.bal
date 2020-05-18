@@ -62,7 +62,7 @@ public type InvoiceCustomFields record {
 	string? value?;
 };
 
-# Configurations related to paying an invoice
+# Configurations related to paying an invoice.
 # 
 # + forgive - In cases where the source used to pay the invoice has insufficient funds, passing `forgive=true` 
 #             controls whether a charge should be attempted for the full amount available on the source, up to 
@@ -80,4 +80,62 @@ public type InvoicePay record {
 	boolean paid_out_of_band?;
 	string payment_method?;
 	string 'source;
+};
+
+# Configurations related to creating an invoice item.
+# 
+# + customer - Customer ID
+# + amount - The integer amount in cents of the charge to be applied to the upcoming invoice
+# + currency - Three-letter ISO currency code, in lowercase
+# + description - An arbitrary string which you can attach to the invoice item. 
+#                 The description is displayed in the invoice for easy tracking
+# + price - The ID of the price object
+# + discountable - Controls whether discounts apply to this invoice item. 
+#                  Defaults to `false` for prorations or negative invoice items, and `true` for all other invoice items
+# + invoice - The ID of an existing invoice to add this invoice item to
+# + price_data - Data used to generate a new price object inline
+# + quantity - Non-negative integer. The quantity of units for the invoice item
+# + subscription - The ID of a subscription to add this invoice item to
+# + tax_rates - The tax rates which apply to the invoice item
+# + unit_amount - The integer unit amount in cents of the charge to be applied to the upcoming invoice
+# + unit_amount_decimal - Same as unit_amount, but accepts a decimal value with at most 12 decimal places. 
+#                         Only one of `unit_amount` and `unit_amount_decimal` can be set
+public type InvoiceItem record {
+	string? customer?;
+	int? amount?;
+	string? currency?;
+	string? description?;
+	int? priceId?;
+	boolean? discountable?;
+	string? invoice?;
+	Period? period?;
+	PriceData? price_data?;
+	int? quantity?;
+	string? subscription?;
+	string[]? tax_rates?;
+	int? unit_amount?;
+	float|string? unit_amount_decimal?;
+};
+
+# The period associated with this invoice item.
+# 
+# + end - The end of the period, which must be greater than or equal to the start
+# + start - The start of the period
+public type Period record {
+	int end;
+	int 'start;
+};
+
+# Data used to generate a new price object inline.
+# 
+# + currency - Three-letter ISO currency code, in lowercase. Must be a supported currency
+# + product - The ID of the product that this price will belong to
+# + unit_amount - A positive integer in cents (or 0 for a free price) representing how much to charge
+# + unit_amount_decimal - Same as unit_amount, but accepts a decimal value with at most 12 decimal places. 
+#                         Only one of `unit_amount` and `unit_amount_decimal` can be set
+public type PriceData record {
+	string? currency;
+	string? product;
+	int? unit_amount?;
+	float? unit_amount_decimal?;
 };

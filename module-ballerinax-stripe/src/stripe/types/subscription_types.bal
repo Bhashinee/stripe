@@ -84,7 +84,7 @@ public type SubscriptionBillingThresholds record {
 # Subscription items
 # 
 # + id - 
-# + subscription_plan - Plan ID for this item, as a string
+# + plan - Plan ID for this item, as a string
 # + billing_thresholds - Define thresholds at which an invoice will be sent
 # + metadata - Set of key-value pairs that you can attach to an object. This can be useful for storing additional 
 #              information about the object in a structured format
@@ -92,7 +92,7 @@ public type SubscriptionBillingThresholds record {
 # + tax_rates - A list of Tax Rate ids
 public type Items record {
 	string? id?;
-	string? subscription_plan;
+	string? plan;
 	BillingThresholds? billing_thresholds?;
 	map<string>? metadata?;
 	int? quantity?;

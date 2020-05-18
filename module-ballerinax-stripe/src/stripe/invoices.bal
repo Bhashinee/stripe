@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/io;
+import ballerina/stringutils;
 
 public type Invoices client object {
     private http:Client invoices;
@@ -30,8 +31,9 @@ public type Invoices client object {
     # + invoice - Invoice configurations
     # + return - `Invoice` record, or else a `stripe:Error` in case of a failure
     public remote function create(Invoice invoice) returns @tainted Invoice|Error {
-        string queryString = createInvoiceQuery(invoice);
+        string queryString = createQuery("", invoice);
         io:println(queryString);
+        queryString = stringutils:replace(queryString, "tax_rates", "default_tax_rates");
         http:Response response = check createPostRequest(self.invoices, queryString, self.path);
         return mapToInvoiceRecord(response);
     }
@@ -53,7 +55,7 @@ public type Invoices client object {
     # + return - `Invoice` record, or else a `stripe:Error` in case of a failure
     public remote function update(string invoiceId, Invoice invoice) returns @tainted Invoice|Error {
         string path = self.path + "/" + invoiceId;
-        string queryString = createInvoiceQuery(invoice);
+        string queryString = createQuery("", invoice);
         http:Response response = check createPostRequest(self.invoices, queryString, path);
         return mapToInvoiceRecord(response);
     }
@@ -89,7 +91,7 @@ public type Invoices client object {
         string invoicePayQuery = "";
         string path = self.path + "/" + invoiceId + "/pay";
         if (invoicePay is InvoicePay) {
-            invoicePayQuery = createInvoicePayQuery(invoicePay);
+            invoicePayQuery = createQuery("", invoicePay);
         }
         http:Response response = check createPostRequest(self.invoices, invoicePayQuery, path);
         return mapToInvoiceRecord(response);
@@ -105,13 +107,15 @@ public type Invoices client object {
         return mapToInvoiceRecord(response);
     }
 
-    // # Voids an invoice.
-    // #
-    // # + invoiceId - Invoice ID
-    // # + return - `Invoice` record
-    // public remote function voidInvoice(string invoiceId) returns @tainted Invoice {
-    //     // return ();
-    // }
+    # Voids an invoice.
+    #
+    # + invoiceId - Invoice ID
+    # + return - `Invoice` record
+    public remote function voidInvoice(string invoiceId) returns @tainted Invoice {
+        string path = self.path + "/" + invoiceId + "/void";
+        http:Response response = check createPostRequest(self.invoices, "", path);
+        return mapToInvoiceRecord(response);
+    }
 
     # Marks an invoice as uncollectible.
     #
@@ -123,22 +127,6 @@ public type Invoices client object {
         return mapToInvoiceRecord(response);
     }
 
-    // # Retrieves an upcoming invoice.
-    // #
-    // # + customerId - Customer ID whose upcoming invoice you’d like to retrieve
-    // # + invoice - Invoice parameters to filter
-    // # + return - `Invoice` record
-    // public remote function retrieveUpcomingInvoice(string customerId, Invoice? invoice = ()) returns @tainted Invoice|Error {
-    //     string path = self.path + "/upcoming?customer=" + customerId;
-    //     string invoiceQuery = "";
-    //     if (invoice is Invoice) {
-    //         invoiceQuery = createInvoiceQuery(invoice);
-    //     }
-    //     io:println(path);
-    //     http:Response response = check createPostRequest(self.invoices, invoiceQuery, path);
-    //     return mapToInvoiceRecord(response);
-    // }
-
     # Lists all invoices.
     #
     # + return - An array of `Invoice` records, if no invoices are available the resulting record will be empty or else a `stripe:Error` 
@@ -146,6 +134,18 @@ public type Invoices client object {
     public remote function list() returns @tainted Invoice[]|Error {
         http:Response response = check createGetRequest(self.invoices, self.path);
         return mapToInvoices(response);
+    }
+
+    # Create an invoice item.
+    #
+    # + return - An array of `Invoice` records, if no invoices are available the resulting record will be empty or else a `stripe:Error` 
+    # for non-existant customer IDs
+    public remote function createInvoiceItem(InvoiceItem invoiceItem) returns @tainted InvoiceItem|Error {
+        string path = "/v1/invoiceitems";
+        string invoiceItemQuery = createQuery("", invoiceItem);
+        invoiceItemQuery = stringutils:replace(invoiceItemQuery, "priceId", "price");
+        http:Response response = check createPostRequest(self.invoices, invoiceItemQuery, path);
+        return mapToInvoiceItemRecord(response);
     }
 };
 

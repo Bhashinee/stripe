@@ -20,7 +20,7 @@
 # + currency - Three-letter ISO currency code, in lowercase. Must be a supported currency
 # + customer - The ID of an existing customer that will be charged
 # + description - Description to be displayed along side the charge object
-# + metaData - Set of key-value pairs that you can attach to an object
+// # + metaData - Set of key-value pairs that you can attach to an object
 # + receipt_email - The email address to which this charge’s receipt will be sent
 # + shipping - Shipping information for the charge
 # + sourceId - A payment source to be charged. This can be the ID of a card (i.e., credit or debit card), 
@@ -37,7 +37,7 @@ public type Charge record {
     string currency?;
     string? customer?;
     string? description?;
-    map<string>? metaData?;
+    // map<string>? metaData?;
     string? receipt_email?;
     Shipping? shipping?;
     string? sourceId?;

@@ -1,4 +1,4 @@
-// import ballerina/io;
+import ballerina/io;
 
 public function main() {
     Stripe stripeClient = new ("sk_test_IqrWNGzWZzCCgj7nqnvLsIMZ00jEjjb17S");
@@ -101,37 +101,63 @@ public function main() {
     // }
 
     Charges charges = stripeClient.charges();
+    // Charge charge = {
+    //     amount: 2000,
+    //     currency: "usd",
+    //     customer: "cus_HGTJPFkQ1VRvDQ",
+    //     description: "charge for xyz customer updated",
+    //     receipt_email: "bhashi123@gmail.com"
+    //     // capture: false
+    //     // shipping: {
+    //     //     address: {
+    //     //         city: "city1",
+    //     //         line1: "4523/5/883",
+    //     //         line2: "Hiripitiya",
+    //     //         country: "Sri lanka",
+    //     //         postal_code: "12345",
+    //     //         state: "Colombo"
+    //     //     },
+    //     //     name: "mnncvcvc",
+    //     //     phone: "0924343434",
+    //     //     carrier: "Fedex",
+    //     //     tracking_number: "5434"
+    //     // },
+    //     // sourceId: "card_1GgiRzKTjsHGwZuGcThbgfpU",
+    //     // statement_descriptor: "statement descriptor",
+    //     // statement_descriptor_suffix: "EE",
+    //     // on_behalf_of: "B customer",
+    //     // transfer_data: {
+    //     //     amount: 1000,
+    //     //     destination: "Colombo"
+    //     // },
+    //     // transfer_group: "group1"
+    // };
+
     Charge charge = {
-        amount: 2000,
-        currency: "usd",
-        customer: "cus_HGTJPFkQ1VRvDQ",
-        description: "charge for xyz customer updated",
-        receipt_email: "bhashi123@gmail.com"
-        // capture: false
-        // shipping: {
-        //     address: {
-        //         city: "city1",
-        //         line1: "4523/5/883",
-        //         line2: "Hiripitiya",
-        //         country: "Sri lanka",
-        //         postal_code: "12345",
-        //         state: "Colombo"
-        //     },
-        //     name: "mnncvcvc",
-        //     phone: "0924343434",
-        //     carrier: "Fedex",
-        //     tracking_number: "5434"
-        // },
-        // sourceId: "card_1GgiRzKTjsHGwZuGcThbgfpU",
-        // statement_descriptor: "statement descriptor",
-        // statement_descriptor_suffix: "EE",
-        // on_behalf_of: "B customer",
-        // transfer_data: {
-        //     amount: 1000,
-        //     destination: "Colombo"
-        // },
-        // transfer_group: "group1"
-    };
+    amount: 2000,
+    currency: "usd",
+    customer: "cus_HGTJPFkQ1VRvDQ",
+    description: "Charge for customer",
+    receipt_email: "bhashi@gmail.com",
+    shipping: {
+        address: {
+            city: "colombo",
+            country: "Sri Lanka",
+            line1: "456/2",
+            line2: "Palm Grove",
+            postal_code: "1004",
+            state: "western"
+        },
+        carrier: "fedex",
+        name: "customer",
+        phone: "09234323",
+        tracking_number: "3456"
+    },
+    sourceId: "card_1GhwWEKTjsHGwZuGOBJ2SK5N",
+    statement_descriptor: "descriptor",
+    statement_descriptor_suffix: "cd",
+    transfer_group: "group1"
+};
 
     // Error|Charge charge1 = charges->create(charge); 
     // if (charge1 is Charge) {
@@ -181,40 +207,64 @@ public function main() {
     //     io:println(charge1);
     // }
 
+    // Subscription subs = {
+    //     customer: "cus_HDoJ28vNJG6FHl",
+    //     cancel_at_period_end: false,
+    //     default_payment_method: "mannual",
+    //     // application_fee_percent: 2.0,
+    //     // backdate_start_date: 3245,
+    //     // billing_cycle_anchor: "unchanged",
+    //     billing_thresholds: {
+    //         // amount_gte: 100,
+    //         reset_billing_cycle_anchor: false
+    //     },
+    //     items: [{
+    //         plan: "plan_H8UvMC10youNdH",
+    //         quantity: 1
+    //     }],
+    //     // cancel_at: 4567,
+    //     collection_method: "send_invoice",
+    //     days_until_due: 30,
+    //     // default_source: "source",
+    //     off_session: false,
+    //     // payment_behavior: "pending_if_incomplete",
+    //     pending_invoice_item_interval: {
+    //         interval: "year",
+    //         interval_count: 1
+    //     },
+    //     // prorate: false,
+    //     // proration_behavior: "behavior",
+    //     tax_percent: 4.0,
+    //     // trial_end: 10,
+    //     trial_from_plan: false,
+    //     trial_period_days: 30
+    // };
+
     Subscription subs = {
         customer: "cus_HDoJ28vNJG6FHl",
         cancel_at_period_end: false,
-        default_payment_method: "mannual",
-        // application_fee_percent: 2.0,
-        // backdate_start_date: 3245,
-        // billing_cycle_anchor: "unchanged",
         billing_thresholds: {
-            // amount_gte: 100,
+            amount_gte: 1000,
             reset_billing_cycle_anchor: false
         },
         subscription_items: [{
-            subscription_plan: "plan_H8UvMC10youNdH",
-            quantity: 1
+            plan: "plan_HIilA2ziI5JMnX",
+            tax_rates: ["10", "15"]
         }],
-        // cancel_at: 4567,
         collection_method: "send_invoice",
         days_until_due: 30,
-        // default_source: "source",
         off_session: false,
-        // payment_behavior: "pending_if_incomplete",
         pending_invoice_item_interval: {
             interval: "year",
             interval_count: 1
         },
-        // prorate: false,
-        // proration_behavior: "behavior",
+        proration_behavior: "always_invoice",
         tax_percent: 4.0,
-        // trial_end: 10,
         trial_from_plan: false,
         trial_period_days: 30
     };
 
-    Subscriptions subscriptions = stripeClient.subscriptions();
+    // Subscriptions subscriptions = stripeClient.subscriptions();
     // Subscription|Error create = subscriptions->create(subs);
     // if (create is Error) {
     //     io:println(create);
@@ -327,30 +377,30 @@ Plan plan = {
     // }
 
     Invoice invo = {
-        // customer: "cus_HGTJPFkQ1VRvDQ",
-        // auto_advance: false,
-        // collection_method: "send_invoice",
-        description: "Description Updated"
-        // subscription: "sub_HG7uffX3MLXNh0",
+        customer: "cus_HGTJPFkQ1VRvDQ",
+        auto_advance: false,
+        collection_method: "send_invoice",
+        description: "Description Updated",
+        subscription: "sub_HG7uffX3MLXNh0",
         // application_fee_amount: 100,
         // custom_fields: {
         //     name: "custom name",
         //     value: "custom value"
         // },
-        // days_until_due: 30,
+        days_until_due: 30,
         // default_payment_method: "defaultpayment",
         // default_source: "defaultSource",
-        // default_tax_rates: ["12", "15"],
-        // statement_descriptor: "statement descriptor"
+        // tax_rates: ["12", "15"],
+        statement_descriptor: "statement descriptor"
     };
 
     Invoices invoices = stripeClient.invoices();
-    // Invoice|Error invoice = invoices->create(invo);
-    // if (invoice is Error) {
-    //     io:println(invoice);
-    // } else {
-    //     io:println(invoice);
-    // }
+    Invoice|Error invoice = invoices->create(invo);
+    if (invoice is Error) {
+        io:println(invoice);
+    } else {
+        io:println(invoice);
+    }
 
     // Invoice|Error invoice = invoices->retrieve("in_1GhwYbKTjsHGwZuGNxAOvgfA");
     // if (invoice is Error) {
@@ -391,7 +441,40 @@ Plan plan = {
     // } else {
     //     io:println(invoice);
     // }
+
+    InvoiceItem invoiceItem = {
+        customer : "cus_HDoJ28vNJG6FHl", 
+        // amount: 4,
+        currency: "usd",
+        description: "description",
+        // price: 10,
+        discountable: true,
+        price_data: {
+            currency: "usd",
+            product: "prod_H8UrXtoBj7des8",
+            unit_amount: 2
+            // unit_amount_decimal: 2.0
+        },
+        period: {
+            end: 1587443917,
+            'start: 1587443917
+        },
+        quantity: 10
+        // tax_rates: ["10", "15"],
+        // unit_amount: 5,
+        // unit_amount_decimal: 2.0
+    };
+
+    // InvoiceItem|Error invoiceItemRes = invoices->createInvoiceItem(invoiceItem);
+    // if (invoiceItemRes is Error) {
+    //     io:println(invoiceItemRes);
+    // } else {
+    //     io:println(invoiceItemRes);
+    // }
+
     
 }
+
+
 
 

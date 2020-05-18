@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/io;
 
 function getEncodedUri(string value) returns string {
     string|error encoded = encoding:encodeUriComponent(value, "UTF8");
@@ -61,6 +62,7 @@ function setResError(error errorResponse) returns Error {
 }
 
 function setJsonResError(error errorResponse) returns Error {
+    io:println(errorResponse);
     return Error(message = "Error occurred while accessing the JSON payload of the response", 
                         cause = errorResponse);
 }
@@ -159,4 +161,63 @@ function checkForErrorResponse(json jsonResp) returns Error? {
     } else {    
         return Error(message = errorResp.toJsonString());
     }
+}
+
+function createQuery(string parent, any anyRecord) returns string {  
+    string queryString = "";  
+    if (anyRecord is record {| any|error...; |}) {        
+        foreach [string, any|error] [key, value] in anyRecord.entries() {
+            if (value is string|boolean|int|float) {
+                queryString = queryString + printWithParent(parent, key, value) + "&";
+            } else if (value is string[]) {
+                string subQuery = "";
+                foreach var str in value {
+                    int count = 0;
+                    if (key != "tax_rates") {
+                        // subQuery = subQuery + "\"" + str + "\",";
+                        subQuery = subQuery + str;
+                        queryString = queryString + printWithParent(parent, key + "[]", subQuery) + "&";
+                    } else {
+                        io:println("********************************");
+                        subQuery = subQuery + "\"" + str + "\",";
+                    }
+                } 
+                if (key == "tax_rates") {
+                    subQuery = subQuery.substring(0, subQuery.length() - 1);
+                    queryString = queryString + printWithParent(parent, key + "[0]", "[" + subQuery + "]") + "&";
+                }
+            } else if (value is record {}) {
+                if (parent == "") {
+                    queryString = queryString + createQuery(key, value);
+                } else {
+                    queryString = queryString + createQuery(parent + "[" + key + "]", value);
+                }
+            } 
+            else if (value is record {}[]) {
+                io:print("-----------------------------------------------------------");
+                int count = 0;
+                foreach var recordItem in value {
+                    if (parent == "") {
+                        queryString = queryString + createQuery(key + "[" + count.toString() + "]", recordItem);
+                    } else {
+                        queryString = queryString + createQuery(parent + "[" + key + "][" + count.toString() + "]", recordItem);
+                    }
+                    count = count + 1;
+                }
+            }
+        }
+    }
+    return queryString;
+}
+
+function printWithParent(string parent, string key, any value) returns string {
+    string parentString = "";
+    if (parent == "") {
+        parentString = key + "=" + value.toString();
+        io:println(key + "=" + value.toString());
+    } else {
+        parentString = parent + "[" + key + "]=" + value.toString();
+        io:println(parent + "[" + key + "]=" + value.toString());
+    }
+    return parentString;
 }
